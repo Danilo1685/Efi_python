@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from models import Marca, Tipo, Telefono, Accesorio, Telefono_Accesorio
+from models import Marca, Tipo, Telefono, Accesorio, Telefono_Accesorio , Stock
 
 @app.route("/")
 def index():
@@ -177,4 +177,53 @@ def accesorio_editar(id):
 
     return render_template("accesorio_edit.html", accesorio=accesorio)
 
+
+@app.route("/stock", methods=['GET', 'POST'])
+def stock():
+    telefonos = Telefono.query.all()
+
+    if request.method == 'POST':
+        telefono_id = request.form['telefono_id']
+        cantidad = int(request.form['cantidad'])
+
+        # Verificar si ya existe un registro de stock para ese teléfono
+        stock_item = Stock.query.filter_by(telefono_id=telefono_id).first()
+        if stock_item:
+            stock_item.cantidad += cantidad  # Actualizar stock existente
+        else:
+            nuevo_stock = Stock(telefono_id=telefono_id, cantidad=cantidad)  # Crear nuevo registro
+            db.session.add(nuevo_stock)
+        
+        db.session.commit()
+        return redirect(url_for('stock'))
+
+    # Enviar a la plantilla la información de cada teléfono junto con su cantidad de stock
+    telefonos_con_stock = []
+    for telefono in telefonos:
+        stock_item = Stock.query.filter_by(telefono_id=telefono.id).first()
+        telefonos_con_stock.append({
+            'telefono': telefono,
+            'stock': stock_item.cantidad if stock_item else 0
+        })
+
+    return render_template('stock.html', telefonos=telefonos_con_stock)
+
+
+@app.route("/restar_stock", methods=['POST'])
+def restar_stock():
+    telefono_id = request.form['telefono_id']
+    cantidad = int(request.form['cantidad'])
+
+    # Buscar el stock del teléfono
+    stock_item = Stock.query.filter_by(telefono_id=telefono_id).first()
+
+    if stock_item:
+        # Restar la cantidad indicada
+        stock_item.cantidad -= cantidad
+        # Asegurarse de que el stock no sea negativo
+        if stock_item.cantidad < 0:
+            stock_item.cantidad = 0
+        db.session.commit()
+
+    return redirect(url_for('stock'))
 

@@ -7,25 +7,28 @@
 
         <div class="col-6">
             <h4>Crea un Nuevo Accesorio</h4>
-            <form action="" method="post">
-                <input type="text" name="nombre" class="form-control mb-2" placeholder="Nombre del Accesorios">
+            <form action="" method="POST">
+            <input type="text" name="nombre" class="form-control mb-2" placeholder="Nombre del Accesorio">
                 <button type="submit" class="btn btn-success">Guardar</button>
             </form>
         </div>
         <div class="col-6">
             <h4>Listado de Accesorios</h4>
-            {% for accesorio in accesorios %}
-            <li>
-                <a href="/accesorio/{{accesorio.id}}/telefonos"> {{accesorio.nombre}} </a>
-                <a href="/accesorio/{{accesorio.id}}/editar">Editar</a>
-                <form action="{{ url_for('accesorio_eliminar', id=accesorio.id) }}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn btn-danger">Eliminar</button>
-                </form>
-            </li>
-        {% endfor %}
+            <ul class="list-unstyled">
+                {% for accesorio in accesorios %}
+                <li class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ accesorio.nombre }}</span>
+                    <div>
+                        <a href="/accesorio/{{ accesorio.id }}/editar" class="btn btn-warning btn-sm me-2">Editar</a>
+                        <form action="{{ url_for('accesorio_eliminar', id=accesorio.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
         
     </div>
 </div>
-    
 {% endblock %}

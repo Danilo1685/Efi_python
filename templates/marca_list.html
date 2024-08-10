@@ -13,16 +13,15 @@
         </div>
         <div class="col-6">
             <h4>Listado de Marcas</h4>
-            {% for marca in marcas %}
-            <li>
-
-                <a href="/marca/{{marca.id}}/telefonos"> {{marca.nombre}} </a>
-                <a href="/marca/{{marca.id}}/editar">Editar</a>
-                
-            </li>
-        {% endfor %}
+            <ul class="list-unstyled">
+                {% for marca in marcas %}
+                <li class="d-flex justify-content-between align-items-center mb-2">
+                    <a href="/marca/{{marca.id}}/telefonos"> {{marca.nombre}} </a>
+                    <a href="/marca/{{marca.id}}/editar" class="btn btn-primary btn-sm">Editar</a>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
-        
 
     </div>
 </div>
