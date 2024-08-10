@@ -6,6 +6,7 @@
 
         <div class="col-6">
             <h4>Crea un nuevo Telefono</h4>
+
             <form action="" method="POST">
                 <input type="text" name="modelo" class="form-control mb-2" placeholder="Modelo">
                 <input type="number" name="precio" class="form-control mb-2" placeholder="Precio">
@@ -35,6 +36,7 @@
                 {% for telefono in telefonos %}
                     <li>
                         <a href="{{ url_for('telefono_accesorio', id=telefono.id) }}"> 
+
                             {{ telefono.modelo }} - {{ telefono.precio }} - {{ telefono.anio_fabricacion }}  - {{ telefono.marca.nombre }} - {{ telefono.tipo.nombre }} 
                         </a>
                     <form action="{{ url_for('telefono_eliminar', id=telefono.id) }}" method="POST" style="display:inline;">
@@ -44,6 +46,7 @@
                 {% endfor %}
                 
                 
+
             </ul>
         </div>
 
