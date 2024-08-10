@@ -1,0 +1,38 @@
+{% extends 'base_template.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <h4>Stock de Teléfonos</h4>
+            <ul>
+                {% for item in telefonos %}
+                    <li style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <div style="margin-right: 10px;">
+                            {{ item.stock }} unidades
+                        </div>
+
+                        <div style="flex-grow: 1;">
+                            {{ item.telefono.modelo }} / {{ item.telefono.marca.nombre }}
+                        </div>
+
+                        <form action="{{ url_for('stock') }}" method="POST" style="display: flex; align-items: center; margin-right: 10px;">
+                            <input type="hidden" name="telefono_id" value="{{ item.telefono.id }}">
+                            <input type="hidden" name="accion" value="agregar">
+                            <input type="number" name="cantidad" class="form-control mb-2" placeholder="Cantidad" style="margin-right: 10px;" required>
+                            <button type="submit" class="btn btn-primary">Agregar</button>
+                        </form>
+
+                        <form action="{{ url_for('stock') }}" method="POST" style="display: flex; align-items: center; margin-right: 10px;">
+                            <input type="hidden" name="telefono_id" value="{{ item.telefono.id }}">
+                            <input type="hidden" name="accion" value="restar">
+                            <input type="number" name="cantidad" class="form-control mb-2" placeholder="Cantidad" style="margin-right: 10px;" required>
+                            <button type="submit" class="btn btn-warning">Restar</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
