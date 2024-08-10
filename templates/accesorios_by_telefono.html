@@ -2,18 +2,14 @@
 
 {% block content %}
 <div class="container">
-    <h1>Accesorios para {{ telefono.modelo }}</h1>
-
-    {% if accesorios %}
-        <ul>
-            {% for accesorio in accesorios %}
-                <li>{{ accesorio.nombre }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No hay accesorios disponibles para este teléfono.</p>
-    {% endif %}
-
+    <h4>Accesorios para el Teléfono: {{ telefono.modelo }}</h4>
+    <ul>
+        {% for accesorio in accesorios %}
+            <li>{{ accesorio.nombre }}</li>
+        {% else %}
+            <li>No hay accesorios asociados.</li>
+        {% endfor %}
+    </ul>
     <a href="{{ url_for('telefonos') }}" class="btn btn-primary">Volver a la lista de teléfonos</a>
 </div>
 {% endblock %}
