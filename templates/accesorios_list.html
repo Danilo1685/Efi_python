@@ -1,0 +1,30 @@
+{% extends 'base_template.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+
+        <div class="col-6">
+            <h4>Crea una nueva marca</h4>
+            <form action="" method="post">
+                <input type="text" name="nombre" class="form-control mb-2" placeholder="Nombre del Accesorios">
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </form>
+        </div>
+        <div class="col-6">
+            <h4>Listado de Accesorios</h4>
+            {% for accesorio in accesorios %}
+            <li>
+                <a href="/accesorio/{{accesorio.id}}/telefonos"> {{accesorio.nombre}} </a>
+                <a href="/accesorio/{{accesorio.id}}/editar">Editar</a>
+                <form action="{{ url_for('accesorio_eliminar', id=accesorio.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </li>
+        {% endfor %}
+        </div>
+        
+    </div>
+</div>
+    
+{% endblock %}

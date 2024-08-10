@@ -1,0 +1,8 @@
+{% extends 'base_template.html' %}
+
+{% block content %}
+<h4>Listado de telefonos de la marca {{marca}}</h4>
+    {% for telefono in telefonos %}
+        <li> {{telefono.modelo}} - {{telefono.precio}} -{{telefono.anio_fabricacion}} -{{telefono.marca}} - {{telefono.tipo.nombre}} </li>
+    {% endfor %}
+{% endblock %}

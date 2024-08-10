@@ -1,0 +1,16 @@
+{% extends 'base_template.html' %}
+
+{% block content %}
+<div class="container">
+    <h4>Accesorios para el Teléfono: {{ telefono.modelo }}</h4>
+    <ul>
+        {% for accesorio in accesorios %}
+            <li>{{ accesorio.nombre }}</li>
+        {% else %}
+            <li>No hay accesorios asociados.</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('telefonos') }}" class="btn btn-primary">Volver a la lista de teléfonos</a>
+</div>
+{% endblock %}
