@@ -38,8 +38,8 @@
                         <a href="{{ url_for('telefono_accesorio', id=telefono.id) }}">
                             {{ telefono.modelo }} - {{ telefono.precio }} - {{ telefono.anio_fabricacion }} - {{ telefono.marca.nombre }} - {{ telefono.tipo.nombre }}
                         </a>
-                        <form action="{{ url_for('telefono_eliminar', id=telefono.id) }}" method="POST">
-                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+
+                        <form action="{{ url_for('telefono_eliminar', id=telefono.id) }}" method="POST">    
                         </form>
                     </li>
                 {% endfor %}

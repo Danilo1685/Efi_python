@@ -1,0 +1,20 @@
+{% extends 'base_template.html' %}
+
+{% block content %}
+    <h1>Editar Cliente</h1>
+    <form method="POST" class="cliente-form">
+        <input type="text" name="nombre" value="{{ cliente.nombre }}" required>
+        <input type="email" name="correo" value="{{ cliente.correo }}" required>
+        <input type="text" name="telefono" value="{{ cliente.telefono }}">
+        <input type="text" name="direccion" value="{{ cliente.direccion }}">
+        <button type="submit" class="btn btn-warning">Editar</button>
+    </form>
+
+    <style>
+        .cliente-form input,
+        .cliente-form button {
+            margin: 5px 0;
+            display: block;
+        }
+    </style>
+{% endblock %}
