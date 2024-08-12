@@ -63,3 +63,14 @@ class Stock(db.Model):
         return f"Stock: {self.cantidad} unidades de {self.telefono.modelo}"
     
 
+class Cliente(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    correo = db.Column(db.String(100), nullable=False, unique=True)
+    telefono = db.Column(db.String(15), nullable=True)
+    direccion = db.Column(db.String(200), nullable=True)
+
+    def __str__(self) -> str:
+        return f"{self.nombre} ({self.correo})"
+
+

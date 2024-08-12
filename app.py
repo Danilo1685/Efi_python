@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from models import Marca, Tipo, Telefono, Accesorio, Telefono_Accesorio , Stock
+from models import  Accesorio, Cliente, Marca,  Telefono_Accesorio, Telefono , Tipo, Stock
 
 @app.route("/")
 def index():
@@ -233,3 +233,47 @@ def restar_stock():
 
     return redirect(url_for('stock'))
 
+
+@app.route("/cliente_list", methods=['GET', 'POST'])
+def clientes():
+    clientes = Cliente.query.all()
+
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        correo = request.form['correo']
+        telefono = request.form.get('telefono')
+        direccion = request.form.get('direccion')
+
+        nuevo_cliente = Cliente(
+            nombre=nombre,
+            correo=correo,
+            telefono=telefono,
+            direccion=direccion
+        )
+        db.session.add(nuevo_cliente)
+        db.session.commit()
+        return redirect(url_for('clientes'))
+
+    return render_template('cliente_list.html', clientes=clientes)
+
+@app.route("/cliente/<id>/editar", methods=['GET', 'POST'])
+def cliente_editar(id):
+    cliente = Cliente.query.get_or_404(id)
+
+    if request.method == 'POST':
+        cliente.nombre = request.form['nombre']
+        cliente.correo = request.form['correo']
+        cliente.telefono = request.form.get('telefono')
+        cliente.direccion = request.form.get('direccion')
+
+        db.session.commit()
+        return redirect(url_for('clientes'))
+
+    return render_template("cliente_edit.html", cliente=cliente)
+
+@app.route("/cliente/<id>/eliminar", methods=['POST'])
+def cliente_eliminar(id):
+    cliente = Cliente.query.get_or_404(id)
+    db.session.delete(cliente)
+    db.session.commit()
+    return redirect(url_for('clientes'))
