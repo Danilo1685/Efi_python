@@ -183,7 +183,6 @@ def accesorio_editar(id):
 
     return render_template("accesorio_edit.html", accesorio=accesorio)
 
-
 @app.route("/stock", methods=['GET', 'POST'])
 def stock():
     telefonos = Telefono.query.all()
@@ -193,7 +192,7 @@ def stock():
         cantidad = int(request.form['cantidad'])
 
         # Verificar si ya existe un registro de stock para ese teléfono
-        stock_item = Stock.query.filter_by(telefono_id=telefono_id).first()
+        stock_item = Stock.query.filter_by(telefono_id=telefono_id).with_for_update().first()
         if stock_item:
             stock_item.cantidad += cantidad  # Actualizar stock existente
         else:
@@ -214,14 +213,13 @@ def stock():
 
     return render_template('stock.html', telefonos=telefonos_con_stock)
 
-
 @app.route("/restar_stock", methods=['POST'])
 def restar_stock():
     telefono_id = request.form['telefono_id']
     cantidad = int(request.form['cantidad'])
 
-    # Buscar el stock del teléfono
-    stock_item = Stock.query.filter_by(telefono_id=telefono_id).first()
+    # Buscar el stock del teléfono con bloqueo
+    stock_item = Stock.query.filter_by(telefono_id=telefono_id).with_for_update().first()
 
     if stock_item:
         # Restar la cantidad indicada
@@ -232,4 +230,3 @@ def restar_stock():
         db.session.commit()
 
     return redirect(url_for('stock'))
-
