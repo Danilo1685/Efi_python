@@ -127,9 +127,14 @@ def telefonos():
 def telefono_eliminar(id):
     telefono = Telefono.query.get_or_404(id)
 
-    # Eliminar los accesorios relacionados
-    Telefono_Accesorio.query.filter_by(telefono_id=id).delete()
-
+    for stock in telefono.stocks:
+        stock.cantidad -= 1
+        if stock.cantidad <= 0:
+            db.session.delete(stock)
+    
+    # Si tienes relaciones con accesorios, asegúrate de eliminarlas o actualizarlas también
+    for accesorio in telefono.accesorios:
+        db.session.delete(accesorio)
     db.session.delete(telefono)
     db.session.commit()
     return redirect(url_for('telefonos'))
@@ -161,6 +166,7 @@ def accesorio_eliminar(id):
 
     # Eliminar las relaciones con teléfonos
     Telefono_Accesorio.query.filter_by(accesorio_id=id).delete()
+    
 
     db.session.delete(accesorio)
     db.session.commit()

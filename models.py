@@ -61,3 +61,5 @@ class Stock(db.Model):
 
     def __str__(self) -> str:
         return f"Stock: {self.cantidad} unidades de {self.telefono.modelo}"
+    
+
