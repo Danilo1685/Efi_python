@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from models import  Accesorio, Cliente, Marca,  Telefono_Accesorio, Telefono , Tipo, Stock
+from models import  Accesorio, Cliente, DetalleVenta, Marca,  Telefono_Accesorio, Telefono , Tipo, Stock, Venta
 
 @app.route("/")
 def index():
@@ -54,21 +54,13 @@ def marca_editar(id):
 @app.route("/marca/<id>/eliminar", methods=['POST'])
 def marca_eliminar(id):
     marca = Marca.query.get_or_404(id)
-
-    # Opcional: si hay teléfonos asociados a esta marca, podrías querer manejar esa relación aquí
     if marca.telefonos:
-        # Por ejemplo, podrías querer eliminar todos los teléfonos asociados antes de eliminar la marca
         for telefono in marca.telefonos:
             db.session.delete(telefono)
     
     db.session.delete(marca)
     db.session.commit()
     return redirect(url_for('marcas'))
-
-
-
-
-
 
 @app.route("/tipo_list", methods=['GET', 'POST'])
 def tipos():
@@ -85,8 +77,6 @@ def tipos():
 @app.route("/tipo/<id>/eliminar", methods=['POST'])
 def tipo_eliminar(id):
     tipo = Tipo.query.get_or_404(id)
-
-    # Manejar relaciones si es necesario
     if tipo.telefonos:
         for telefono in tipo.telefonos:
             db.session.delete(telefono)
@@ -126,13 +116,11 @@ def telefonos():
 @app.route("/telefono/<id>/eliminar", methods=['POST'])
 def telefono_eliminar(id):
     telefono = Telefono.query.get_or_404(id)
-
     for stock in telefono.stocks:
         stock.cantidad -= 1
         if stock.cantidad <= 0:
             db.session.delete(stock)
     
-    # Si tienes relaciones con accesorios, asegúrate de eliminarlas o actualizarlas también
     for accesorio in telefono.accesorios:
         db.session.delete(accesorio)
     db.session.delete(telefono)
@@ -163,11 +151,8 @@ def telefono_accesorio(id):
 @app.route("/accesorio/<id>/eliminar", methods=['POST'])
 def accesorio_eliminar(id):
     accesorio = Accesorio.query.get_or_404(id)
-
-    # Eliminar las relaciones con teléfonos
     Telefono_Accesorio.query.filter_by(accesorio_id=id).delete()
     
-
     db.session.delete(accesorio)
     db.session.commit()
     return redirect(url_for('accesorios'))
@@ -190,19 +175,16 @@ def stock():
     if request.method == 'POST':
         telefono_id = request.form['telefono_id']
         cantidad = int(request.form['cantidad'])
-
-        # Verificar si ya existe un registro de stock para ese teléfono
         stock_item = Stock.query.filter_by(telefono_id=telefono_id).with_for_update().first()
         if stock_item:
-            stock_item.cantidad += cantidad  # Actualizar stock existente
+            stock_item.cantidad += cantidad  
         else:
-            nuevo_stock = Stock(telefono_id=telefono_id, cantidad=cantidad)  # Crear nuevo registro
+            nuevo_stock = Stock(telefono_id=telefono_id, cantidad=cantidad)  
             db.session.add(nuevo_stock)
         
         db.session.commit()
         return redirect(url_for('stock'))
 
-    # Enviar a la plantilla la información de cada teléfono junto con su cantidad de stock
     telefonos_con_stock = []
     for telefono in telefonos:
         stock_item = Stock.query.filter_by(telefono_id=telefono.id).first()
@@ -217,14 +199,10 @@ def stock():
 def restar_stock():
     telefono_id = request.form['telefono_id']
     cantidad = int(request.form['cantidad'])
-
-    # Buscar el stock del teléfono con bloqueo
     stock_item = Stock.query.filter_by(telefono_id=telefono_id).with_for_update().first()
 
     if stock_item:
-        # Restar la cantidad indicada
         stock_item.cantidad -= cantidad
-        # Asegurarse de que el stock no sea negativo
         if stock_item.cantidad < 0:
             stock_item.cantidad = 0
         db.session.commit()
@@ -276,4 +254,49 @@ def cliente_eliminar(id):
     db.session.delete(cliente)
     db.session.commit()
     return redirect(url_for('clientes'))
+
+
+@app.route("/venta_list", methods=['GET', 'POST'])
+def ventas():
+    ventas = Venta.query.all()
+    clientes = Cliente.query.all()
+
+    if request.method == 'POST':
+        cliente_id = request.form['cliente_id']
+        total = request.form['total']
+
+        nueva_venta = Venta(cliente_id=cliente_id, total=total)
+        db.session.add(nueva_venta)
+        db.session.commit()
+        return redirect(url_for('ventas'))
+
+    return render_template('venta_list.html', ventas=ventas, clientes=clientes)
+
+@app.route("/venta/<id>/detalle", methods=['GET', 'POST'])
+def detalle_venta(id):
+    venta = Venta.query.get_or_404(id)
+    telefonos = Telefono.query.all()
+
+    if request.method == 'POST':
+        telefono_id = request.form['telefono_id']
+        cantidad = request.form['cantidad']
+        precio_unitario = request.form['precio_unitario']
+
+        detalle = DetalleVenta(
+            venta_id=id,
+            telefono_id=telefono_id,
+            cantidad=cantidad,
+            precio_unitario=precio_unitario
+        )
+        db.session.add(detalle)
+        db.session.commit()
+        
+        # Actualizar el total de la venta
+        venta.total += int(cantidad) * int(precio_unitario)
+        db.session.commit()
+
+        return redirect(url_for('detalle_venta', id=id))
+
+    detalles = DetalleVenta.query.filter_by(venta_id=id).all()
+    return render_template('detalle_venta.html', venta=venta, telefonos=telefonos, detalles=detalles)
 

@@ -1,0 +1,37 @@
+{% extends 'base_template.html' %}
+
+{% block content %}
+    <h2>Detalles de Venta : {{ venta }}</h2>
+    <form method="post">
+        <div class="form-group">
+            <label for="telefono_id">Teléfono:</label>
+            <select class="form-control" name="telefono_id" id="telefono_id">
+                {% for telefono in telefonos %}
+                    <option value="{{ telefono.id }}">{{ telefono.modelo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="cantidad">Cantidad:</label>
+            <input type="text" class="form-control" name="cantidad" id="cantidad">
+        </div>
+
+        <div class="form-group">
+            <label for="precio_unitario">Precio Unitario:</label>
+            <input type="text" class="form-control" name="precio_unitario" id="precio_unitario">
+        </div>
+
+        <div class="form-group text-center">
+            <button class="btn btn-primary btn-sm" type="submit">Agregar Detalle</button>
+        </div>
+    </form>
+
+    <ul class="list-unstyled mt-3">
+        {% for detalle in detalles %}
+            <li>
+                {{ detalle }} - Precio Total: {{ detalle.cantidad * detalle.precio_unitario }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

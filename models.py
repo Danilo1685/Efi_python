@@ -1,5 +1,5 @@
 from app import db
-
+from datetime import datetime
 class Marca(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
@@ -72,5 +72,31 @@ class Cliente(db.Model):
 
     def __str__(self) -> str:
         return f"{self.nombre} ({self.correo})"
+    
+
+class Venta(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
+    fecha = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    total = db.Column(db.Integer, nullable=False, default=0)
+
+    cliente = db.relationship('Cliente', backref=db.backref('ventas', lazy=True))
+    detalles = db.relationship('DetalleVenta', backref='venta', lazy=True)
+
+    def __str__(self) -> str:
+        return f"Venta #{self.id} - Cliente: {self.cliente.nombre} - Fecha: {self.fecha.strftime('%Y-%m-%d')} - Total: {self.total}"
+
+class DetalleVenta(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    venta_id = db.Column(db.Integer, db.ForeignKey('venta.id'), nullable=False)
+    telefono_id = db.Column(db.Integer, db.ForeignKey('telefono.id'), nullable=False)
+    cantidad = db.Column(db.Integer, nullable=False)
+    precio_unitario = db.Column(db.Integer, nullable=False)
+
+    telefono = db.relationship('Telefono', backref=db.backref('detalles_venta', lazy=True))
+
+    def __str__(self) -> str:
+        return f"Detalle Venta - Teléfono: {self.telefono.modelo} - Cantidad: {self.cantidad} - Precio Unitario: {self.precio_unitario}"
+
 
 
