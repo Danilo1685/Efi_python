@@ -1,50 +1,44 @@
 {% extends 'base_template.html' %}
 
 {% block content %}
+<div class="container">
     <h1>Clientes</h1>
-    <form method="POST" class="cliente-form">
-        <input type="text" name="nombre" placeholder="Nombre" required>
-        <input type="email" name="correo" placeholder="Correo" required>
-        <input type="text" name="telefono" placeholder="Teléfono">
-        <input type="text" name="direccion" placeholder="Dirección">
-        <button type="submit" class="btn btn-primary">Agregar</button>
-    </form>
-    
-    <ul class="clientes-lista">
-        {% for cliente in clientes %}
-            <li>
-                <span>{{ cliente.nombre }} - {{ cliente.correo }}</span>
-                <a href="{{ url_for('cliente_editar', id=cliente.id) }}"button type="submit" class="btn btn-warning">Editar</a>
-                <form action="{{ url_for('cliente_eliminar', id=cliente.id) }}" method="POST" class="form-eliminar">
-                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="row">
+        <div class="col-md-6">
+            <form method="POST" class="cliente-form">
+                <div class="mb-3">
+                    <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
+                </div>
+                <div class="mb-3">
+                    <input type="email" name="correo" class="form-control" placeholder="Correo" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" name="telefono" class="form-control" placeholder="Teléfono">
+                </div>
+                <div class="mb-3">
+                    <input type="text" name="direccion" class="form-control" placeholder="Dirección">
+                </div>
+                <button type="submit" class="btn btn-primary">Agregar</button>
+            </form>
+        </div>
 
-    <style>
-        .cliente-form input,
-        .cliente-form button {
-            margin: 5px 0;
-            display: block;
-        }
+        <div class="col-md-6">
+            <h4>Listado de Clientes</h4>
+            <ul class="list-group">
+                {% for cliente in clientes %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ cliente.nombre }} - {{ cliente.correo }}</span>
+                    <div>
+                        <a href="{{ url_for('cliente_editar', id=cliente.id) }}" class="btn btn-warning btn-sm me-2">Editar</a>
+                        <form action="{{ url_for('cliente_eliminar', id=cliente.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
 
-        .clientes-lista li {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .clientes-lista li span {
-            flex-grow: 1;
-        }
-
-        .clientes-lista .btn {
-            margin-left: 10px;
-        }
-
-        .form-eliminar {
-            display: inline;
-        }
-    </style>
 {% endblock %}

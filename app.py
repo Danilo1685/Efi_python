@@ -1,152 +1,99 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+import os
+from datetime import timedelta
 
+# Flask imports
+from flask import ( 
+    Flask, 
+    flash, 
+    jsonify, 
+    redirect, 
+    render_template, 
+    request, 
+    url_for,
+)
+
+# Werkzeug security imports
+from werkzeug.security import (
+    generate_password_hash, 
+    check_password_hash,
+)
+
+# Flask JWT imports
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token, 
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
+
+# SQLAlchemy, Marshmallow, Migrate imports
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_marshmallow import Marshmallow
 
+# Environment variables
+from dotenv import load_dotenv
+
+
+
+# Load environment variables
+load_dotenv()
+
+# Initialize Flask app
 app = Flask(__name__) 
 
-# Configuracion de SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/efi_python'
+# Configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.urandom(24)
 
+# Initialize extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+ma = Marshmallow(app)
+jwt = JWTManager(app)
 
-from models import  Accesorio, Cliente, DetalleVenta, Marca,  Telefono_Accesorio, Telefono , Tipo, Stock, Venta
+# Local imports
+from models import (
+    Accesorio, 
+    Cliente, 
+    DetalleVenta,
+    Telefono_Accesorio, 
+    Telefono, 
+    Stock, 
+    Venta,
+)
+from forms import AccesorioForm
+from services.accesorio_service import AccesorioService
+from repositories.accesorio_repositories import AccesorioRepositories
+
+from views import register_blueprint
+
+# Register blueprints
+register_blueprint(app)
+
+
+
 
 @app.route("/")
 def index():
     return render_template('index.html')
 
-@app.route("/marca_list", methods=['POST', 'GET'])
-def marcas():   
-    marcas = Marca.query.all()
-
-    if request.method == 'POST':
-        nombre = request.form['nombre']
-        nueva_marca = Marca(nombre=nombre)
-        db.session.add(nueva_marca)
-        db.session.commit()
-        return redirect(url_for('marcas'))
-
-    return render_template('marca_list.html',
-                marcas=marcas)
-
-@app.route("/marca/<id>/telefono")
-def telefonos_por_marca(id):
-    marca = Marca.query.get_or_404(id)
-    telefonos = marca.telefonos
-    return render_template("telefonos_by_marca.html", telefonos=telefonos, marca=marca)
-
-
-@app.route("/marca/<id>/editar", methods=['GET', 'POST'])
-def marca_editar(id):
-    marca = Marca.query.get_or_404(id)
-
-    if request.method == 'POST':
-        marca.nombre = request.form['nombre']
-        db.session.commit()
-        return redirect(url_for('marcas'))
-
-    return render_template("marca_edit.html", marca=marca)
-
-
-@app.route("/marca/<id>/eliminar", methods=['POST'])
-def marca_eliminar(id):
-    marca = Marca.query.get_or_404(id)
-    if marca.telefonos:
-        for telefono in marca.telefonos:
-            db.session.delete(telefono)
-    
-    db.session.delete(marca)
-    db.session.commit()
-    return redirect(url_for('marcas'))
-
-@app.route("/tipo_list", methods=['GET', 'POST'])
-def tipos():
-    tipos = Tipo.query.all()
-
-    if request.method == 'POST':
-        nombre = request.form['nombre']
-        nuevo_tipo = Tipo(nombre=nombre)
-        db.session.add(nuevo_tipo)
-        db.session.commit()
-        return redirect(url_for('tipos'))
-
-    return render_template('tipo_list.html', tipos=tipos)
-@app.route("/tipo/<id>/eliminar", methods=['POST'])
-def tipo_eliminar(id):
-    tipo = Tipo.query.get_or_404(id)
-    if tipo.telefonos:
-        for telefono in tipo.telefonos:
-            db.session.delete(telefono)
-
-    db.session.delete(tipo)
-    db.session.commit()
-    return redirect(url_for('tipos'))
-
-
-@app.route("/telefono_list", methods=['POST', 'GET'])
-def telefonos():
-    telefonos = Telefono.query.all()
-    accesorios = Accesorio.query.all()
-    marcas = Marca.query.all()
-    tipos = Tipo.query.all()
-
-    if request.method == 'POST':
-        modelo = request.form['modelo']
-        anio = request.form['anio_fabricacion']
-        precio = request.form['precio']
-        accesorio = request.form['accesorio']
-        marca = request.form['marca']
-        tipo = request.form['tipo']
-        telefono_nuevo = Telefono(
-            modelo=modelo,
-            anio_fabricacion=anio,
-            precio=precio,
-            marca_id=marca,
-            tipo_id=tipo,
-        )
-        db.session.add(telefono_nuevo)
-        db.session.commit()
-        return redirect(url_for('telefonos'))
-
-    return render_template('telefono_list.html', telefonos=telefonos, accesorios=accesorios, marcas=marcas, tipos=tipos)
-
-@app.route("/telefono/<id>/eliminar", methods=['POST'])
-def telefono_eliminar(id):
-    telefono = Telefono.query.get_or_404(id)
-    for stock in telefono.stocks:
-        stock.cantidad -= 1
-        if stock.cantidad <= 0:
-            db.session.delete(stock)
-    
-    for accesorio in telefono.accesorios:
-        db.session.delete(accesorio)
-    db.session.delete(telefono)
-    db.session.commit()
-    return redirect(url_for('telefonos'))
-
-
 
 @app.route("/accesorios_list", methods=["GET", "POST"])
 def accesorios():
-    accesorios = Accesorio.query.all()
+    accesorio_service = AccesorioService(AccesorioRepositories())
+    accesorios = accesorio_service.get_all()
+
+    formulario = AccesorioForm()
 
     if request.method == 'POST':
-        nombre = request.form['nombre']
-        nuevo_accesorio = Accesorio(nombre=nombre)
-        db.session.add(nuevo_accesorio)
-        db.session.commit()
+        nombre = formulario.nombre.data
+        accesorio_service.create(nombre)
         return redirect(url_for('accesorios'))
 
-    return render_template('accesorios_list.html', accesorios=accesorios)
-
-@app.route("/telefono/<id>", methods=['GET'])
-def telefono_accesorio(id):
-    telefono = Telefono.query.get_or_404(id)
-    accesorios = [ta.accesorio for ta in Telefono_Accesorio.query.filter_by(telefono_id=id).all()]
-    return render_template("accesorios_by_telefono.html", telefono=telefono, accesorios=accesorios)
+    return render_template('accesorios_list.html', accesorios=accesorios, formulario=formulario)
 
 @app.route("/accesorio/<id>/eliminar", methods=['POST'])
 def accesorio_eliminar(id):
@@ -167,6 +114,9 @@ def accesorio_editar(id):
         return redirect(url_for('accesorios'))
 
     return render_template("accesorio_edit.html", accesorio=accesorio)
+
+
+
 
 @app.route("/stock", methods=['GET', 'POST'])
 def stock():
@@ -254,6 +204,8 @@ def cliente_eliminar(id):
     db.session.delete(cliente)
     db.session.commit()
     return redirect(url_for('clientes'))
+
+
 
 
 @app.route("/venta_list", methods=['GET', 'POST'])
