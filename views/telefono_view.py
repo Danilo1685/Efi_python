@@ -19,8 +19,6 @@ from schemas import (
 from models import (
     Accesorio, 
     Marca, 
-    Telefono_Accesorio,
-    Telefono,
     Tipo,
 ) 
 from forms import TelefonoForm
@@ -33,7 +31,6 @@ def telefonos():
     telefono_service = TelefonoService(TelefonoRepositories())
     telefonos = telefono_service.get_all()
 
-    # Serialización de los datos con Marshmallow
     telefono_schema = TelefonoSchema(many=True)
     telefonos_serializados = telefono_schema.dump(telefonos)
 
@@ -42,19 +39,26 @@ def telefonos():
     accesorios = Accesorio.query.all()
 
     formulario = TelefonoForm()
-    formulario.marca.choices = [(marca.id, marca.nombre) for marca in marcas]
-    formulario.tipo.choices = [(tipo.id, tipo.nombre) for tipo in tipos]
-    formulario.accesorio.choices = [(accesorio.id, accesorio.nombre) for accesorio in accesorios]
+    
+    try:
+        formulario.marca.choices = [(marca.id, marca.nombre) for marca in marcas]
+        formulario.tipo.choices = [(tipo.id, tipo.nombre) for tipo in tipos]
+        formulario.accesorio.choices = [(accesorio.id, accesorio.nombre) for accesorio in accesorios]
+    except Exception as e:
+        return jsonify({"error": f"Error al cargar las opciones del formulario: {str(e)}"}), 500
 
-    if request.method == 'POST':
-        modelo = formulario.modelo.data
-        anio_fabricacion = formulario.anio_fabricacion.data
-        precio = formulario.precio.data
-        marca = formulario.marca.data
-        tipo = formulario.tipo.data
-        
-        telefono_service.create(modelo, anio_fabricacion, precio, marca, tipo)
-        return redirect(url_for('telefono.telefonos'))
+    if request.method == 'POST' and formulario.validate_on_submit():
+        try:
+            modelo = formulario.modelo.data
+            anio_fabricacion = formulario.anio_fabricacion.data
+            precio = formulario.precio.data
+            marca = formulario.marca.data
+            tipo = formulario.tipo.data
+            
+            telefono_service.create(modelo, anio_fabricacion, precio, marca, tipo)
+            return redirect(url_for('telefono.telefonos'))
+        except Exception as e:
+            return jsonify({"error": f"Error al crear el teléfono: {str(e)}"}), 500
 
     return render_template('telefono_list.html', 
                             telefonos=telefonos_serializados, 
@@ -62,7 +66,6 @@ def telefonos():
                             marcas=marcas, 
                             tipos=tipos, 
                             accesorios=accesorios)
-
 
 @telefono_bp.route("/telefono/<id>/eliminar", methods=['POST'])
 def telefono_eliminar(id):
@@ -86,5 +89,5 @@ def delete_telefono(telefono_id):
         delete_with_accesorios(telefono_id)
         return jsonify({"message": "Teléfono eliminado con éxito"}), 200
     except Exception as e:
-        db.session.rollback()  # Hacer rollback en caso de error
+        db.session.rollback()  
         return jsonify({"error": str(e)}), 500

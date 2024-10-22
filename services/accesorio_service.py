@@ -1,11 +1,20 @@
-from repositories.accesorio_repositories import AccesorioRepositories
+from repositories.accesorio_repositories import AccesorioRepositorie
 
 class AccesorioService:
-    def __init__(self, accesorio_repository):
-        self.accesorio_repository = accesorio_repository
+    def __init__(self):
+        self.repository = AccesorioRepositorie()
 
     def get_all(self):
-        return self.accesorio_repository.get_all()
+        return self.repository.get_all()
+
+    def get_by_id(self, id):
+        return self.repository.get_by_id(id)
 
     def create(self, nombre):
-        self.accesorio_repository.create(nombre)
+        self.repository.create(nombre)
+
+    def update(self, id, nombre):
+        self.repository.update(id, nombre)
+
+    def delete(self, id):
+        self.repository.delete(id)

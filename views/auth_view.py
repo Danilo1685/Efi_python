@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import Usuario
 from schemas import UserSchema, MinimalUserSchema
-from app import db  # Ahora no hay problema porque `db` está inicializado en `create_app`
+from app import db 
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -64,7 +64,9 @@ def users():
         try:
             nuevo_usuario = Usuario(
                 username=username,
-                password_hash=password_encrypted
+                password_hash=password_encrypted,
+                is_admin=False, 
+
             )
             db.session.add(nuevo_usuario)
             db.session.commit()

@@ -6,32 +6,27 @@
         <div class="col-md-6">
             <h4>Crear un nuevo Teléfono</h4>
             <form action="" method="POST">
+                {{ formulario.hidden_tag() }}
                 <div class="mb-3">
-                    <input type="text" name="modelo" class="form-control mb-2" placeholder="Modelo">
-                    <input type="number" name="precio" class="form-control mb-2" placeholder="Precio">
-                    <input type="number" max="2024" min="2000" name="anio_fabricacion" class="form-control mb-2" placeholder="Año de Fabricación">
+                    {{ formulario.modelo.label }} 
+                    {{ formulario.modelo(class="form-control mb-2") }}
+                    {{ formulario.precio.label }} 
+                    {{ formulario.precio(class="form-control mb-2") }}
+                    {{ formulario.anio_fabricacion.label }} 
+                    {{ formulario.anio_fabricacion(class="form-control mb-2") }}
                     
-                    <select name="accesorio" class="form-control mb-2">
-                        {% for accesorio in accesorios %}
-                        <option value="{{accesorio.id}}">{{accesorio.nombre}}</option>
-                        {% endfor %}
-                    </select>
+                    {{ formulario.accesorio.label }} 
+                    {{ formulario.accesorio(class="form-control mb-2") }}
                     
-                    <select name="marca" class="form-control mb-2">
-                        {% for marca in marcas %}
-                        <option value="{{marca.id}}">{{marca.nombre}}</option>
-                        {% endfor %}
-                    </select>
+                    {{ formulario.marca.label }} 
+                    {{ formulario.marca(class="form-control mb-2") }}
                     
-                    <select name="tipo" class="form-control mb-2">
-                        {% for tipo in tipos %}
-                        <option value="{{tipo.id}}">{{tipo.nombre}}</option>
-                        {% endfor %}
-                    </select>
+                    {{ formulario.tipo.label }} 
+                    {{ formulario.tipo(class="form-control mb-2") }}
                 </div>
                 <button type="submit" class="btn btn-success">Guardar</button>
             </form>
-        </div>
+                    </div>
 
         <div class="col-md-6">
             <h4>Listado de Teléfonos</h4>

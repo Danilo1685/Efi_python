@@ -20,6 +20,5 @@ class MarcaRepositories:
         db.session.commit()
 
     def get_telefonos_por_marca(self, marca_id):
-        # Suponiendo que hay una relación definida entre Marca y Telefono
         marca = self.get_by_id(marca_id)
-        return marca.telefonos  # Asegúrate de que `telefonos` esté bien definida en el modelo Marca
+        return marca.telefonos 

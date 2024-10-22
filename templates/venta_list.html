@@ -2,7 +2,8 @@
 
 {% block content %}
 <div class="container">
-    <h2 class="text-center my-4">Detalles de Venta: {{ venta }}</h2>
+    <h2 class="text-center my-4">Detalles de Venta</h2>
+
     <form method="post">
         <div class="form-group mb-3">
             <label for="telefono_id">Teléfono:</label>
@@ -15,12 +16,12 @@
 
         <div class="form-group mb-3">
             <label for="cantidad">Cantidad:</label>
-            <input type="text" class="form-control" name="cantidad" id="cantidad">
+            <input type="text" class="form-control" name="cantidad" id="cantidad" required>
         </div>
 
         <div class="form-group mb-3">
             <label for="precio_unitario">Precio Unitario:</label>
-            <input type="text" class="form-control" name="precio_unitario" id="precio_unitario">
+            <input type="text" class="form-control" name="precio_unitario" id="precio_unitario" required>
         </div>
 
         <div class="form-group text-center mb-4">
@@ -28,12 +29,26 @@
         </div>
     </form>
 
-    <h4>Lista de Detalles</h4>
-    <ul class="list-group mt-3">
+    <!-- Lista de detalles de la venta -->
+    <h4 class="my-4">Lista de Detalles</h4>
+    <ul class="list-group">
         {% for detalle in detalles %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                Teléfono: {{ detalle.telefono.modelo }} - Cantidad: {{ detalle.cantidad }} 
-                <span>Precio Total: {{ detalle.cantidad * detalle.precio_unitario }}</span>
+                <div>
+                    <strong>Teléfono:</strong> {{ detalle.telefono.modelo }} <br>
+                    <strong>Cantidad:</strong> {{ detalle.cantidad }}
+                </div>
+                <span><strong>Precio Total:</strong> {{ detalle.cantidad * detalle.precio_unitario }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Sección de ventas -->
+    <h4 class="my-4">Lista de Ventas</h4>
+    <ul class="list-group">
+        {% for venta in ventas %}
+            <li class="list-group-item">
+                <strong>Total:</strong> {{ venta.total }}
             </li>
         {% endfor %}
     </ul>

@@ -6,7 +6,6 @@ from schemas import MarcaSchema, TelefonoSchema
 from models import Marca
 from forms import MarcaForm
 
-# Define el blueprint para las rutas relacionadas a Marca
 marca_bp = Blueprint('marca', __name__)
 
 @marca_bp.route("/marca_list", methods=['POST', 'GET'])
@@ -14,7 +13,6 @@ def marcas():
     marca_service = MarcaService(MarcaRepositories())
     marcas = marca_service.get_all()
 
-    # Usar el esquema para serializar las marcas
     marca_schema = MarcaSchema(many=True)
     marcas_serializadas = marca_schema.dump(marcas)
 
@@ -32,7 +30,6 @@ def telefonos_por_marca(id):
     telefonos = marca_service.get_telefonos_por_marca(id)
     marca = marca_service.get_by_id(id)
 
-    # Serializar los datos usando los esquemas
     telefono_schema = TelefonoSchema(many=True)
     marca_schema = MarcaSchema()
 

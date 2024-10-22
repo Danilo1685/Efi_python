@@ -6,8 +6,10 @@
         <div class="col-md-6">
             <h4>Crear un Nuevo Accesorio</h4>
             <form action="" method="POST">
+                {{ formulario.hidden_tag() }}
                 <div class="mb-3">
-                    <input type="text" name="nombre" class="form-control" placeholder="Nombre del Accesorio">
+                    {{ formulario.nombre.label }}
+                    {{ formulario.nombre(class="form-control") }}
                 </div>
                 <button type="submit" class="btn btn-success">Guardar</button>
             </form>
@@ -20,8 +22,8 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>{{ accesorio.nombre }}</span>
                     <div>
-                        <a href="/accesorio/{{ accesorio.id }}/editar" class="btn btn-warning btn-sm me-2">Editar</a>
-                        <form action="{{ url_for('accesorio_eliminar', id=accesorio.id) }}" method="POST" class="d-inline">
+                        <a href="{{ url_for('accesorio_bp.accesorio_editar', id=accesorio.id) }}" class="btn btn-warning btn-sm me-2">Editar</a>
+                        <form action="{{ url_for('accesorio_bp.accesorio_eliminar', id=accesorio.id) }}" method="POST" class="d-inline">
                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                         </form>
                     </div>

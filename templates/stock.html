@@ -13,7 +13,7 @@
                         {{ item.telefono.modelo }} / {{ item.telefono.marca.nombre }}
                     </div>
 
-                    <form action="{{ url_for('stock') }}" method="POST" class="d-flex align-items-center">
+                    <form action="{{ url_for('stock.stock') }}" method="POST" class="d-flex align-items-center">
                         <input type="hidden" name="telefono_id" value="{{ item.telefono.id }}">
 
                         <div class="input-group me-2">

@@ -11,3 +11,6 @@ class TipoRepositories:
         db.session.add(nuevo_tipo)
         db.session.commit()
         return nuevo_tipo
+    
+    def get_by_id(self, id):
+        return Tipo.query.filter_by(id=id).first()
