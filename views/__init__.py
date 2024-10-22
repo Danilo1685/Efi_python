@@ -8,6 +8,8 @@ from .cliente_view import cliente_bp
 from .stock_view import stock_bp
 from .accesorio_view import accesorio_bp
 
+
+from .views_api.accesorios_api import accesorio_app_bp
 def register_blueprint(app):
     app.register_blueprint(auth_bp)
     app.register_blueprint(marca_bp)
@@ -17,3 +19,5 @@ def register_blueprint(app):
     app.register_blueprint(cliente_bp)
     app.register_blueprint(stock_bp)
     app.register_blueprint(accesorio_bp)
+
+    app.register_blueprint(accesorio_app_bp)
