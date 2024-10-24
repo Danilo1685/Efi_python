@@ -1,6 +1,6 @@
 from app import db
 from repositories.telefono_repositories import TelefonoRepositories
-from models import Telefono, DetalleVenta ,Stock
+from models import Telefono,Stock
 
 class TelefonoService:
     def __init__(self, telefono_repository: TelefonoRepositories):
@@ -33,15 +33,6 @@ class TelefonoService:
         return self._telefono_repository.get_accesorios_by_telefono(telefono_id)
 
 def delete_with_accesorios(telefono_id):
-    # Asegúrate de eliminar las asociaciones o actualizarlas
-    detalle_ventas = DetalleVenta.query.filter_by(telefono_id=telefono_id).all()
-    if detalle_ventas:
-        for detalle in detalle_ventas:
-            # Decide qué hacer: eliminar detalle o asignar nuevo telefono_id
-            db.session.delete(detalle)  # Elimina el detalle de la venta
-
-    # Actualiza el telefono_id en stock a None o a un valor por defecto
-    # Supongo que tienes una tabla `stock` y `telefono_id` es una clave foránea.
     stock_items = Stock.query.filter_by(telefono_id=telefono_id).all()
     for item in stock_items:
         item.telefono_id = None  # o asigna un nuevo telefono_id válido

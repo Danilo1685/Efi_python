@@ -60,41 +60,6 @@ class Stock(db.Model):
 
     def __str__(self):
         return f"Stock: {self.cantidad} unidades de {self.telefono_relacion.modelo}"
-class Cliente(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-    correo = db.Column(db.String(100), nullable=False, unique=True)
-    telefono = db.Column(db.String(15), nullable=True)
-    direccion = db.Column(db.String(200), nullable=True)
-
-    def __str__(self):
-        return f"{self.nombre} ({self.correo})"
-
-class Venta(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
-    fecha = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    total = db.Column(db.Integer, nullable=False, default=0)
-
-    cliente = db.relationship('Cliente', backref=db.backref('ventas', lazy=True))
-    detalles = db.relationship('DetalleVenta', backref='venta', lazy=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id', ondelete='SET NULL'))
-
-
-    def __str__(self):
-        return f"Venta #{self.id} - Cliente: {self.cliente.nombre} - Fecha: {self.fecha.strftime('%Y-%m-%d')} - Total: {self.total}"
-
-class DetalleVenta(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    venta_id = db.Column(db.Integer, db.ForeignKey('venta.id'), nullable=False)
-    telefono_id = db.Column(db.Integer, db.ForeignKey('telefono.id'), nullable=True)
-    cantidad = db.Column(db.Integer, nullable=False)
-    precio_unitario = db.Column(db.Integer, nullable=False)
-
-    telefono = db.relationship('Telefono', backref=db.backref('detalles_venta', lazy=True))
-
-    def __str__(self):
-        return f"Detalle Venta - Teléfono: {self.telefono.modelo} - Cantidad: {self.cantidad} - Precio Unitario: {self.precio_unitario}"
 
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)

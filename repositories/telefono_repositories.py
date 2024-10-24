@@ -1,5 +1,5 @@
 from app import db
-from models import Telefono, Telefono_Accesorio, DetalleVenta
+from models import Telefono, Telefono_Accesorio
 
 class TelefonoRepositories:
     def get_all(self):

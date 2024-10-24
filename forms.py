@@ -8,7 +8,6 @@ from wtforms import (
 )
 from wtforms.validators import (
     DataRequired,
-    Email,
     Length, 
 
 )
@@ -39,42 +38,6 @@ class TipoForm(FlaskForm):
         )
 
 
-class VentaForm(FlaskForm):
-    cliente_id = SelectField('Cliente', coerce=int, validators=[DataRequired()])
-    total = DecimalField('Total', validators=[DataRequired()])
-    submit = SubmitField('Guardar')
-
-
-class DetalleVentaForm(FlaskForm):
-    telefono_id = SelectField('Teléfono', coerce=int, validators=[DataRequired()])
-    cantidad = IntegerField('Cantidad', validators=[DataRequired()])
-    precio_unitario = DecimalField('Precio Unitario', validators=[DataRequired()])
-    submit = SubmitField('Agregar Detalle')
-
-
-class ClienteForm(FlaskForm):
-    nombre = StringField(
-        'Nombre', 
-        validators=[Length(min=3, max=40), DataRequired()],
-        render_kw={"class": "form-control", "placeholder": "Nombre"}
-    )
-    correo = StringField(
-        'Correo', 
-        validators=[Email(), DataRequired()],
-        render_kw={"class": "form-control", "placeholder": "Correo"}
-    )
-    telefono = StringField(
-        'Teléfono', 
-        render_kw={"class": "form-control", "placeholder": "Teléfono"}
-    )
-    direccion = StringField(
-        'Dirección', 
-        render_kw={"class": "form-control", "placeholder": "Dirección"}
-    )
-    submit = SubmitField(
-        'Guardar',
-        render_kw={"class": "form-control btn btn-success"}
-    )
 
 
 class TelefonoCantidadForm(FlaskForm):
