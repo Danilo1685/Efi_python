@@ -12,6 +12,7 @@ from .views_api.marca_api import marca_app_bp
 from .views_api.tipo_api import tipo_app_bp
 from .views_api.stock_api import stock_app_bp
 from .views_api.telefono_api import telefono_app_bp
+from .views_api.main_api import main_app_bp
 
 def register_blueprint(app):
     app.register_blueprint(auth_bp)
@@ -26,3 +27,4 @@ def register_blueprint(app):
     app.register_blueprint(tipo_app_bp)
     app.register_blueprint(stock_app_bp)
     app.register_blueprint(telefono_app_bp)
+    app.register_blueprint(main_app_bp)
