@@ -1,4 +1,12 @@
-from flask import Blueprint, request, render_template, redirect, url_for
+from flask import Blueprint, jsonify ,request, render_template, redirect, url_for
+
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
+
 from services.tipo_service import TipoService
 from repositories.tipo_repositories import TipoRepositories
 from schemas import TipoSchema
@@ -8,7 +16,14 @@ from app import db
 tipo_bp = Blueprint('tipo', __name__)
 
 @tipo_bp.route("/tipo_list", methods=['GET', 'POST'])
+@jwt_required()
 def tipos():
+    additional_info = get_jwt()
+    is_admin = additional_info.get('is_admin')
+
+    if not is_admin:  
+        return jsonify({"Mensaje": "No está autorizado para crear tipos"}), 403
+
     tipo_service = TipoService(TipoRepositories())
     tipos = tipo_service.get_all()
 
@@ -24,7 +39,14 @@ def tipos():
     return render_template('tipo_list.html', tipos=tipos_serializados, formulario=formulario)
 
 @tipo_bp.route('/tipo/<int:id>/eliminar', methods=['POST'])
+@jwt_required()
 def tipo_eliminar(id):
+    additional_info = get_jwt()
+    is_admin = additional_info.get('is_admin')
+
+    if not is_admin:  
+        return jsonify({"Mensaje": "No está autorizado para borrar tipos"}), 403
+
     tipo_service = TipoService(TipoRepositories())
     tipo = tipo_service.get_by_id(id)
     if tipo:
