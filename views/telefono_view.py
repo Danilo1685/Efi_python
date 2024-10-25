@@ -3,19 +3,25 @@ from flask import (
     jsonify,
     redirect, 
     render_template, 
-    request, 
+    request,  
     url_for, 
 )
+
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
+
 from services.telefono_service import TelefonoService 
 from services.telefono_service import delete_with_accesorios
-
 from repositories.telefono_repositories import TelefonoRepositories
+
 from schemas import (
-    AccesorioSchema,
-    MarcaSchema, 
     TelefonoSchema, 
-    TipoSchema, 
 )
+
 from models import (
     Accesorio, 
     Marca, 
@@ -27,7 +33,16 @@ from app import db
 telefono_bp = Blueprint('telefono', __name__)
 
 @telefono_bp.route("/telefono_list", methods=['POST', 'GET'])
+@jwt_required()
 def telefonos():
+
+    additional_info = get_jwt()
+    is_admin = additional_info.get('is_admin')
+
+    if not is_admin:  
+        return jsonify({"Mensaje": "No está autorizado para crear teléfonos"}), 403
+    
+    
     telefono_service = TelefonoService(TelefonoRepositories())
     telefonos = telefono_service.get_all()
 
@@ -68,7 +83,15 @@ def telefonos():
                             accesorios=accesorios)
 
 @telefono_bp.route("/telefono/<id>/eliminar", methods=['POST'])
+@jwt_required()
 def telefono_eliminar(id):
+
+    additional_info = get_jwt()
+    is_admin = additional_info.get('is_admin')
+
+    if not is_admin:  
+        return jsonify({"Mensaje": "No está autorizado para eliminar teléfonos"}), 403
+
     telefono_service = TelefonoService(TelefonoRepositories())
     telefono_service.delete_with_accesorios(id)
     return redirect(url_for('telefono.telefonos'))
@@ -84,7 +107,16 @@ def telefono_accesorio(id):
 
 
 @telefono_bp.route('/telefono/<int:telefono_id>', methods=['DELETE'])
+@jwt_required()
+
 def delete_telefono(telefono_id):
+
+    additional_info = get_jwt()
+    is_admin = additional_info.get('is_admin')
+
+    if not is_admin:  
+        return jsonify({"Mensaje": "No está autorizado para eliminar teléfonos"}), 403
+
     try:
         delete_with_accesorios(telefono_id)
         return jsonify({"message": "Teléfono eliminado con éxito"}), 200

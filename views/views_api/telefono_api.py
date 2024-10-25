@@ -5,6 +5,14 @@ from flask import (
     request, 
     url_for, 
 )
+
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
+
 from services.telefono_service import TelefonoService 
 from services.telefono_service import delete_with_accesorios
 
@@ -26,7 +34,15 @@ from app import db
 telefono_app_bp = Blueprint('telefono_app_bp', __name__)
 
 @telefono_app_bp.route("/api/telefono_list", methods=['POST', 'GET'])
+@jwt_required()
 def telefonos():
+
+    additional_info = get_jwt()
+    is_admin = additional_info.get('is_admin')
+
+    if not is_admin:  
+        return jsonify({"Mensaje": "No está autorizado para crear teléfonos"}), 403
+
     telefono_service = TelefonoService(TelefonoRepositories())
     telefonos = telefono_service.get_all()
 
@@ -86,7 +102,14 @@ def telefono_accesorio(id):
 
 
 @telefono_app_bp.route('/api/telefono/<int:telefono_id>', methods=['DELETE'])
+@jwt_required()
 def delete_telefono(telefono_id):
+        
+    additional_info = get_jwt()
+    is_admin = additional_info.get('is_admin')
+
+    if not is_admin:  
+        return jsonify({"Mensaje": "No está autorizado para eliminar teléfonos"}), 403
     try:
         delete_with_accesorios(telefono_id)
         return jsonify({"message": "Teléfono eliminado con éxito"}), 200

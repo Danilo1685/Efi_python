@@ -1,4 +1,12 @@
 from flask import Blueprint, request, redirect, url_for, jsonify
+
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
+
 from services.stock_services import obtener_stock_telefonos, agregar_stock, restar_stock
 from forms import TelefonoCantidadForm
 from app import db
@@ -7,7 +15,15 @@ from models import Stock, Telefono
 stock_app_bp = Blueprint('stock_app_bp', __name__)
 
 @stock_app_bp.route("/api/stock", methods=['GET', 'POST'])
+@jwt_required()
 def stock():
+
+    additional_info = get_jwt()
+    is_admin = additional_info.get('is_admin')
+
+    if not is_admin:  
+        return jsonify({"Mensaje": "No está autorizado para agregar stock"}), 403
+
     telefonos = Telefono.query.all()
 
     if request.method == 'POST':
@@ -34,7 +50,16 @@ def stock():
     return jsonify(telefonos_con_stock)
 
 @stock_app_bp.route("/api/restar_stock", methods=['POST'])
+@jwt_required()
 def restar_stock_view():
+
+    additional_info = get_jwt()
+    is_admin = additional_info.get('is_admin')
+
+    if not is_admin:  
+        return jsonify({"Mensaje": "No está autorizado para borrar stock"}), 403
+
+    
     form = TelefonoCantidadForm()
     if form.validate_on_submit():
         restar_stock(form.telefono.data, form.cantidad.data)
