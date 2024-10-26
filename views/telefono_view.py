@@ -1,48 +1,36 @@
 from flask import (
     Blueprint, 
     jsonify,
-    redirect, 
-    render_template, 
-    request,  
-    url_for, 
+    request,
 )
-
 from flask_jwt_extended import (
-    create_access_token,
-    get_jwt,
-    get_jwt_identity,
     jwt_required,
+    get_jwt,
 )
-
-from services.telefono_service import TelefonoService 
+from services.telefono_service import TelefonoService
 from services.telefono_service import delete_with_accesorios
 from repositories.telefono_repositories import TelefonoRepositories
-
 from schemas import (
+    AccesorioSchema,
+    MarcaSchema, 
     TelefonoSchema, 
+    TipoSchema, 
 )
-
-from models import (
-    Accesorio, 
-    Marca, 
-    Tipo,
-) 
+from models import Accesorio, Marca, Tipo
 from forms import TelefonoForm
 from app import db
 
-telefono_bp = Blueprint('telefono', __name__)
+telefono_app_bp = Blueprint('telefono_app_bp', _name_)
 
-@telefono_bp.route("/telefono_list", methods=['POST', 'GET'])
+@telefono_app_bp.route("/api/telefono_list", methods=['POST', 'GET'])
 @jwt_required()
 def telefonos():
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
 
-    additional_info = get_jwt()
-    is_admin = additional_info.get('is_admin')
-
-    if not is_admin:  
+    if not administrador:
         return jsonify({"Mensaje": "No está autorizado para crear teléfonos"}), 403
-    
-    
+
     telefono_service = TelefonoService(TelefonoRepositories())
     telefonos = telefono_service.get_all()
 
@@ -54,7 +42,7 @@ def telefonos():
     accesorios = Accesorio.query.all()
 
     formulario = TelefonoForm()
-    
+
     try:
         formulario.marca.choices = [(marca.id, marca.nombre) for marca in marcas]
         formulario.tipo.choices = [(tipo.id, tipo.nombre) for tipo in tipos]
@@ -69,57 +57,65 @@ def telefonos():
             precio = formulario.precio.data
             marca = formulario.marca.data
             tipo = formulario.tipo.data
-            
+
             telefono_service.create(modelo, anio_fabricacion, precio, marca, tipo)
-            return redirect(url_for('telefono.telefonos'))
+            return jsonify({"message": "Teléfono creado exitosamente"}), 201
         except Exception as e:
             return jsonify({"error": f"Error al crear el teléfono: {str(e)}"}), 500
 
-    return render_template('telefono_list.html', 
-                            telefonos=telefonos_serializados, 
-                            formulario=formulario, 
-                            marcas=marcas, 
-                            tipos=tipos, 
-                            accesorios=accesorios)
+    return jsonify({
+        "telefonos": telefonos_serializados,
+        "marcas": [(marca.id, marca.nombre) for marca in marcas],
+        "tipos": [(tipo.id, tipo.nombre) for tipo in tipos],
+        "accesorios": [(accesorio.id, accesorio.nombre) for accesorio in accesorios]
+    })
 
-@telefono_bp.route("/telefono/<id>/eliminar", methods=['POST'])
+
+@telefono_app_bp.route("/api/telefono/<id>/eliminar", methods=['POST'])
 @jwt_required()
 def telefono_eliminar(id):
-
-    additional_info = get_jwt()
-    is_admin = additional_info.get('is_admin')
-
-    if not is_admin:  
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
+    
+    if not administrador:
         return jsonify({"Mensaje": "No está autorizado para eliminar teléfonos"}), 403
 
     telefono_service = TelefonoService(TelefonoRepositories())
     telefono_service.delete_with_accesorios(id)
-    return redirect(url_for('telefono.telefonos'))
+    return jsonify({"message": "Teléfono eliminado con éxito"}), 200
 
 
-@telefono_bp.route("/telefono/<id>", methods=['GET'])
+@telefono_app_bp.route("/telefono/<id>", methods=['GET'])
+@jwt_required()
 def telefono_accesorio(id):
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
+
+    if not administrador:
+        return jsonify({"Mensaje": "No está autorizado para ver accesorios"}), 403
+
     telefono_service = TelefonoService(TelefonoRepositories())
     accesorios = telefono_service.get_accesorios_by_telefono(id)
     telefono = telefono_service.get_by_id(id)
 
-    return render_template("accesorios_by_telefono.html", telefono=telefono, accesorios=accesorios)
+    return jsonify({
+        "telefono": telefono,
+        "accesorios": accesorios
+    })
 
 
-@telefono_bp.route('/telefono/<int:telefono_id>', methods=['DELETE'])
+@telefono_app_bp.route('/api/telefono/<int:telefono_id>', methods=['DELETE'])
 @jwt_required()
-
 def delete_telefono(telefono_id):
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
 
-    additional_info = get_jwt()
-    is_admin = additional_info.get('is_admin')
-
-    if not is_admin:  
+    if not administrador:
         return jsonify({"Mensaje": "No está autorizado para eliminar teléfonos"}), 403
 
     try:
         delete_with_accesorios(telefono_id)
         return jsonify({"message": "Teléfono eliminado con éxito"}), 200
     except Exception as e:
-        db.session.rollback()  
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
