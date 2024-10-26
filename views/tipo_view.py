@@ -1,27 +1,23 @@
-from flask import Blueprint, jsonify ,request, render_template, redirect, url_for
-
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
-    create_access_token,
-    get_jwt,
-    get_jwt_identity,
     jwt_required,
+    get_jwt,
 )
-
 from services.tipo_service import TipoService
 from repositories.tipo_repositories import TipoRepositories
 from schemas import TipoSchema
 from forms import TipoForm
 from app import db
 
-tipo_bp = Blueprint('tipo', __name__)
+tipo_app_bp = Blueprint('tipo_app_bp', _name_)
 
-@tipo_bp.route("/tipo_list", methods=['GET', 'POST'])
+@tipo_app_bp.route("/api/tipo_list", methods=['GET', 'POST'])
 @jwt_required()
 def tipos():
-    additional_info = get_jwt()
-    is_admin = additional_info.get('is_admin')
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
 
-    if not is_admin:  
+    if not administrador:
         return jsonify({"Mensaje": "No está autorizado para crear tipos"}), 403
 
     tipo_service = TipoService(TipoRepositories())
@@ -34,23 +30,23 @@ def tipos():
     if request.method == 'POST' and formulario.validate_on_submit():
         nombre = formulario.nombre.data
         tipo_service.create(nombre)
-        return redirect(url_for('tipo.tipos'))
+        return jsonify({'message': 'Tipo creado exitosamente'}), 201
 
-    return render_template('tipo_list.html', tipos=tipos_serializados, formulario=formulario)
+    return jsonify({'tipos': tipos_serializados})
 
-@tipo_bp.route('/tipo/<int:id>/eliminar', methods=['POST'])
+@tipo_app_bp.route('/api/tipo/<int:id>/eliminar', methods=['POST'])
 @jwt_required()
 def tipo_eliminar(id):
     additional_info = get_jwt()
-    is_admin = additional_info.get('is_admin')
+    administrador = additional_info.get('administrador')
 
-    if not is_admin:  
-        return jsonify({"Mensaje": "No está autorizado para borrar tipos"}), 403
+    if not administrador:
+        return jsonify({"Mensaje": "No está autorizado para eliminar tipos"}), 403
 
     tipo_service = TipoService(TipoRepositories())
     tipo = tipo_service.get_by_id(id)
     if tipo:
         db.session.delete(tipo)
         db.session.commit()
-        return redirect(url_for('tipo.tipos'))
-
+        return jsonify({'message': 'Tipo eliminado exitosamente'}), 200
+    return jsonify({'error': 'Tipo no encontrado'}), 404
