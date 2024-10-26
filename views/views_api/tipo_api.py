@@ -1,12 +1,8 @@
-from flask import Blueprint, request, jsonify, redirect, url_for
-
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
-    create_access_token,
-    get_jwt,
-    get_jwt_identity,
     jwt_required,
+    get_jwt,
 )
-
 from services.tipo_service import TipoService
 from repositories.tipo_repositories import TipoRepositories
 from schemas import TipoSchema
@@ -18,11 +14,10 @@ tipo_app_bp = Blueprint('tipo_app_bp', __name__)
 @tipo_app_bp.route("/api/tipo_list", methods=['GET', 'POST'])
 @jwt_required()
 def tipos():
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
 
-    additional_info = get_jwt()
-    is_admin = additional_info.get('is_admin')
-
-    if not is_admin:  
+    if not administrador:
         return jsonify({"Mensaje": "No está autorizado para crear tipos"}), 403
 
     tipo_service = TipoService(TipoRepositories())
@@ -42,11 +37,10 @@ def tipos():
 @tipo_app_bp.route('/api/tipo/<int:id>/eliminar', methods=['POST'])
 @jwt_required()
 def tipo_eliminar(id):
-
     additional_info = get_jwt()
-    is_admin = additional_info.get('is_admin')
+    administrador = additional_info.get('administrador')
 
-    if not is_admin:  
+    if not administrador:
         return jsonify({"Mensaje": "No está autorizado para eliminar tipos"}), 403
 
     tipo_service = TipoService(TipoRepositories())

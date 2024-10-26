@@ -19,11 +19,12 @@ marca_app_bp = Blueprint('marca_app_bp', __name__)
 @marca_app_bp.route("/api/marca_list", methods=['POST', 'GET'])
 @jwt_required()
 def marcas(): 
+    
 
-    additional_info = get_jwt()
-    is_admin = additional_info.get('is_admin')
+    additional_data = get_jwt()
+    administrador = additional_data.get('administrador')
 
-    if not is_admin:  
+    if not administrador:  
         return jsonify({"Mensaje": "No está autorizado para crear marcas"}), 403
 
     marca_service = MarcaService(MarcaRepositories())

@@ -1,22 +1,17 @@
-
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, render_template, request, redirect, url_for
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
+    get_jwt_identity,
     jwt_required,
 )
+
 from forms import AccesorioForm
 from services.accesorio_service import AccesorioService
 
-accesorio_app_bp = Blueprint('accesorio_app_bp', _name_)
+accesorio_bp = Blueprint('accesorio_bp', __name__)
 
-def accesorio_to_dict(accesorio):
-    return {
-        "id": accesorio.id,
-        "nombre": accesorio.nombre
-    }
-
-@accesorio_app_bp.route("/api/accesorios_list", methods=["GET", "POST"])
+@accesorio_bp.route("/accesorios_list", methods=["GET", "POST"])
 @jwt_required()
 def accesorios():
     additional_data = get_jwt()
@@ -25,35 +20,39 @@ def accesorios():
     if request.method == 'POST':
         if not administrador:  
             return jsonify({"Mensaje": "No está autorizado para crear accesorio"}), 403
-
-        formulario = AccesorioForm()
-        if formulario.validate_on_submit():
-            nombre = formulario.nombre.data
-            accesorio_service = AccesorioService()
-            accesorio_service.create(nombre)
-            return jsonify({"message": "Accesorio creado exitosamente"}), 201
-        return jsonify({"errors": formulario.errors}), 400
-
-    # Para el método GET
+            
     accesorio_service = AccesorioService()
     accesorios = accesorio_service.get_all()
-    accesorios_data = [accesorio_to_dict(accesorio) for accesorio in accesorios]
-    return jsonify({"accesorios": accesorios_data})
 
-@accesorio_app_bp.route("/api/accesorio/<id>/eliminar", methods=['POST'])
+    formulario = AccesorioForm()
+
+    if request.method == 'POST':
+        if not administrador:  
+            return jsonify({"Mensaje": "No está autorizado para crear accesorio"}), 403
+
+        if formulario.validate_on_submit():
+            nombre = formulario.nombre.data
+            accesorio_service.create(nombre)
+            return redirect(url_for('accesorio_bp.accesorios'))
+
+        return render_template('accesorios_list.html', accesorios=accesorios, formulario=formulario)
+
+    return render_template('accesorios_list.html', accesorios=accesorios, formulario=formulario)
+
+@accesorio_bp.route("/accesorio/<id>/eliminar", methods=['POST'])
 @jwt_required()
 def accesorio_eliminar(id):
-    additional_data = get_jwt()
-    administrador = additional_data.get('administrador')
+    additional_info = get_jwt()
+    administrador = additional_info.get('administrador')
 
     if not administrador:  
         return jsonify({"Mensaje": "No está autorizado para eliminar accesorio"}), 403
 
     accesorio_service = AccesorioService()
     accesorio_service.delete(id)
-    return jsonify({"message": "Accesorio eliminado exitosamente"}), 200
+    return redirect(url_for('accesorio_bp.accesorios'))
 
-@accesorio_app_bp.route("/api/accesorio/<id>/editar", methods=['GET', 'POST'])
+@accesorio_bp.route("/accesorio/<id>/editar", methods=['GET', 'POST'])
 @jwt_required()
 def accesorio_editar(id):
     additional_info = get_jwt()
@@ -69,7 +68,6 @@ def accesorio_editar(id):
 
     if request.method == 'POST' and formulario.validate_on_submit():
         accesorio_service.update(id, formulario.nombre.data)
-        return jsonify({"message": "Accesorio actualizado exitosamente"}), 200
+        return redirect(url_for('accesorio_bp.accesorios'))
 
-    accesorio_data = accesorio_to_dict(accesorio)
-    return jsonify({"accesorio": accesorio_data})
+    return render_template("accesorio_edit.html", accesorio=accesorio, formulario=formulario)
