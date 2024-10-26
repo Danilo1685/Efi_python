@@ -1,6 +1,6 @@
 from app import db
 from repositories.telefono_repositories import TelefonoRepositories
-from models import Telefono,Stock
+from models import Telefono, Stock
 
 class TelefonoService:
     def __init__(self, telefono_repository: TelefonoRepositories):
@@ -18,7 +18,8 @@ class TelefonoService:
     def delete_with_accesorios(self, id):
         telefono = self._telefono_repository.get_by_id(id)
         
-        for stock in telefono.stocks:
+        # Reemplaza 'stocks' con 'stock'
+        for stock in telefono.stock:
             stock.cantidad -= 1
             if stock.cantidad <= 0:
                 db.session.delete(stock)
@@ -32,10 +33,11 @@ class TelefonoService:
     def get_accesorios_by_telefono(self, telefono_id):
         return self._telefono_repository.get_accesorios_by_telefono(telefono_id)
 
+# Función para eliminar teléfono y actualizar stock relacionado
 def delete_with_accesorios(telefono_id):
     stock_items = Stock.query.filter_by(telefono_id=telefono_id).all()
     for item in stock_items:
-        item.telefono_id = None  # o asigna un nuevo telefono_id válido
+        item.telefono_id = None  # Asigna un nuevo telefono_id válido o elimínalo si corresponde
         db.session.add(item)
 
     # Luego, elimina el teléfono
@@ -44,6 +46,3 @@ def delete_with_accesorios(telefono_id):
 
     # Realiza el commit
     db.session.commit()
-
-
-
