@@ -67,5 +67,9 @@ class Usuario(db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     is_admin = db.Column(db.Boolean, default=True)
 
-    def __str__(self):
-        return self.username
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "is_admin": self.is_admin
+        }
