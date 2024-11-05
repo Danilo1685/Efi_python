@@ -13,7 +13,6 @@ from wtforms.validators import (
 )
 
 
-
 class MarcaForm(FlaskForm):
     nombre= StringField(
         'Nombre',
@@ -38,13 +37,10 @@ class TipoForm(FlaskForm):
         )
 
 
-
-
 class TelefonoCantidadForm(FlaskForm):
     telefono = SelectField('Teléfono', coerce=int, validators=[DataRequired()])
     cantidad = IntegerField('Cantidad', validators=[DataRequired()])
     submit = SubmitField('Guardar')
-
 
 
 class TelefonoForm(FlaskForm):

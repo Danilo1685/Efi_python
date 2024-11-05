@@ -33,16 +33,13 @@ class TelefonoService:
     def get_accesorios_by_telefono(self, telefono_id):
         return self._telefono_repository.get_accesorios_by_telefono(telefono_id)
 
-# Función para eliminar teléfono y actualizar stock relacionado
 def delete_with_accesorios(telefono_id):
     stock_items = Stock.query.filter_by(telefono_id=telefono_id).all()
     for item in stock_items:
-        item.telefono_id = None  # Asigna un nuevo telefono_id válido o elimínalo si corresponde
+        item.telefono_id = None  
         db.session.add(item)
 
-    # Luego, elimina el teléfono
     telefono = Telefono.query.get(telefono_id)
     db.session.delete(telefono)
 
-    # Realiza el commit
     db.session.commit()

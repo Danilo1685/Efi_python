@@ -20,6 +20,7 @@ class UserSchema(ma.SQLAlchemySchema):
     is_admin = ma.auto_field()
     password_hash = ma.auto_field()
 
+
 class MinimalUserSchema(ma.SQLAlchemySchema):
     
     class Meta:
@@ -39,6 +40,7 @@ class TelefonoSchema(ma.SQLAlchemySchema):
     marca = ma.Nested('MarcaSchema')
     tipo = ma.Nested('TipoSchema')
 
+
 class MarcaSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Marca
@@ -46,12 +48,14 @@ class MarcaSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     nombre = ma.auto_field()
 
+
 class TipoSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Tipo
 
     id = ma.auto_field()
     nombre = ma.auto_field()
+
 
 class TelefonoSchema(ma.SQLAlchemySchema):
     class Meta:

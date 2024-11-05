@@ -16,4 +16,3 @@ class TelefonoRepositories:
 
     def get_accesorios_by_telefono(self, telefono_id):
         return [ta.accesorio for ta in Telefono_Accesorio.query.filter_by(telefono_id=telefono_id).all()]
-

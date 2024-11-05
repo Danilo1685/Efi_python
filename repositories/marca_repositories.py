@@ -1,5 +1,3 @@
-
-
 from app import db
 from models import Marca, Telefono
 
@@ -22,3 +20,4 @@ class MarcaRepositories:
     def get_telefonos_por_marca(self, marca_id):
         marca = self.get_by_id(marca_id)
         return marca.telefonos 
+    

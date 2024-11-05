@@ -8,12 +8,14 @@ class Marca(db.Model):
     def __str__(self):
         return self.nombre
 
+
 class Tipo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
 
     def __str__(self):
         return f"Tipo {self.nombre}"
+
 
 class Telefono(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -30,6 +32,7 @@ class Telefono(db.Model):
     
     def __str__(self):
         return f"Telefono {self.modelo}"
+
 
 class Accesorio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,7 +53,7 @@ class Telefono_Accesorio(db.Model):
 
     def __str__(self):
         return f"Accesorio {self.accesorio.nombre} para el teléfono {self.telefono.modelo}"
-    
+
 
 class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,6 +63,7 @@ class Stock(db.Model):
 
     def __str__(self):
         return f"Stock: {self.cantidad} unidades de {self.telefono_relacion.modelo}"
+
 
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -73,3 +77,4 @@ class Usuario(db.Model):
             "username": self.username,
             "is_admin": self.is_admin
         }
+    

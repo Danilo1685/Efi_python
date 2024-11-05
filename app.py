@@ -1,7 +1,3 @@
-import os
-from datetime import timedelta
-from flask_cors import CORS
-
 # Imports de Flask
 from flask import ( 
     Flask, 
@@ -12,6 +8,13 @@ from flask import (
     request, 
     url_for, 
 )
+
+
+# Importaciones de Flask-WTF
+import os
+from datetime import timedelta
+from flask_cors import CORS
+
 
 # Imports de Werkzeug security 
 from werkzeug.security import (

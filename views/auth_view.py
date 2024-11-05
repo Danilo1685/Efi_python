@@ -1,6 +1,13 @@
 import os
 from datetime import timedelta
 
+
+from app import db 
+
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
     create_access_token,
@@ -8,11 +15,10 @@ from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
 )
-from werkzeug.security import generate_password_hash, check_password_hash
+
+
 from models import Usuario
 from schemas import UserSchema, MinimalUserSchema
-from app import db 
-
 
 
 auth_bp = Blueprint('auth', __name__)
